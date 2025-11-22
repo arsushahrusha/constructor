@@ -20,9 +20,12 @@ public:
     Element() : width(0), height(0), matrix() {};                    // Конструктор по умолчанию
     Element(int w, int h, const std::vector<std::vector<char>> &mat) // Конструктор инициализации
     {
-        width = w;
-        height = h;
-        matrix = mat;
+        if (w>0 && h>0) {
+            width = w;
+            height = h;
+            matrix = mat;
+        }
+        
     };
     Element(const Element &other) // Конструктор копирования
     {

@@ -12,8 +12,6 @@ using namespace std;
 
 class Layer {
 private:
-    int width;
-    int height;
     int minX, minY, maxX, maxY; 
     vector<vector<char>> grid; // ' '=пусто, '0'=паз, '1'=выпуклость
     vector<pair<Element*, pair<int, int>>> elements; // элемент + координаты (x,y)
@@ -41,29 +39,6 @@ private:
             maxX = max(maxX, x + elemWidth - 1);
             maxY = max(maxY, y + elemHeight - 1);
         }
-    }
-
-    // Проверка перекрытия элементов
-    bool hasOverlap(Element* elem, int x, int y) const {
-        int elemWidth = elem->getWidth();
-        int elemHeight = elem->getHeight();
-        
-        for (const auto& existingPair : elements) {
-            Element* existingElem = existingPair.first;
-            int existingX = existingPair.second.first;
-            int existingY = existingPair.second.second;
-            int existingWidth = existingElem->getWidth();
-            int existingHeight = existingElem->getHeight();
-            
-            // Проверяем пересечение прямоугольников
-            if (x < existingX + existingWidth &&
-                x + elemWidth > existingX &&
-                y < existingY + existingHeight &&
-                y + elemHeight > existingY) {
-                return true;
-            }
-        }
-        return false;
     }
 
     // Вспомогательный метод для обновления grid
@@ -103,6 +78,30 @@ public:
         maxY = other.maxY;
         elements = other.elements;
     }
+
+    // Проверка перекрытия элементов
+    bool hasOverlap(Element* elem, int x, int y) const {
+        int elemWidth = elem->getWidth();
+        int elemHeight = elem->getHeight();
+        
+        for (const auto& existingPair : elements) {
+            Element* existingElem = existingPair.first;
+            int existingX = existingPair.second.first;
+            int existingY = existingPair.second.second;
+            int existingWidth = existingElem->getWidth();
+            int existingHeight = existingElem->getHeight();
+            
+            // Проверяем пересечение прямоугольников
+            if (x < existingX + existingWidth &&
+                x + elemWidth > existingX &&
+                y < existingY + existingHeight &&
+                y + elemHeight > existingY) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     // Размещение элемента на конкретной позиции
     bool placeElement(Element* elem, int x, int y) {
