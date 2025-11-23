@@ -62,7 +62,7 @@ public:
     int getSpeed() const;
     void setDirection(int newDirection);
     int getDirection() const;
-    void setStatus(int newStatus);
+    void setStatus(bool newStatus);
     bool getStatus() const;
 
     // Методы уникальные

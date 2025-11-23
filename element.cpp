@@ -144,7 +144,7 @@ int Motor::getDirection() const
     return direction;
 }
 
-void Motor::setStatus(int newStatus)
+void Motor::setStatus(bool newStatus)
 {
     if (newStatus == true || newStatus == false)
     {
