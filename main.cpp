@@ -367,69 +367,71 @@ void addElementToScheme(Scheme& scheme, vector<Element*>& elements) {
 // ТЕсты
 void runTests()
 {
-    std::cout << "Running tests..." << std::endl;
+    std::cout << "Running tests...\n" << std::endl;
 
-    // Тест конструктора по умолчанию
+    // ТЕСТИРОВАНИЕ ELEMENT
+    std::cout << "TESTING ELEMENT..." << std::endl;
+
+    // Конструктор по умолчанию
     Element elem1;
     assert(elem1.getWidth() == 0);
     assert(elem1.getHeight() == 0);
     assert(elem1.getCell(0, 0) == ' ');
 
-    // Тест конструктора инициализации
+    // Конструктор инициализации
     std::vector<std::vector<char>> mat = {
-        {'0', '0', '0'},
-        {'1', '1', '1'},
-        {'0', '0', '0'},
+        {'0', '1', '0'},
+        {'1', '0', '1'},
+        {'0', '1', '0'}
     };
     Element elem2(3, 3, mat);
     assert(elem2.getWidth() == 3);
     assert(elem2.getHeight() == 3);
-    assert(elem2.getCell(0, 0) == '0');
-    assert(elem2.getCell(1, 1) == '1');
-    assert(elem2.getCell(2, 2) == '0');
+    assert(elem2.getCell(0, 1) == '1');
+    assert(elem2.getCell(1, 1) == '0');
+    assert(elem2.getCell(1, 0) == '1');
 
-    // Тест конструктора копирования
+    // Конструктор копирования
     Element elem3(elem2);
     assert(elem3.getWidth() == 3);
     assert(elem3.getHeight() == 3);
-    assert(elem3.getCell(1, 1) == '1');
+    assert(elem3.getCell(1, 1) == '0');
 
-    // Тест сеттеров ширины и высоты
+    // Сеттеры
     elem1.setWidth(5);
     elem1.setHeight(4);
     assert(elem1.getWidth() == 5);
     assert(elem1.getHeight() == 4);
 
-    // Тест сеттеров ячейкеек
     elem2.setCell(0, 0, '1');
     assert(elem2.getCell(0, 0) == '1');
 
-    // Тест сеттеров ячеек (некорректные координаты)
-    char original = elem2.getCell(5, 5);
-    elem2.setCell(5, 5, '1');
-    assert(elem2.getCell(5, 5) == original);
+    // Некорректные координаты
+    char original = elem2.getCell(10, 10);
+    elem2.setCell(10, 10, '1');
+    assert(elem2.getCell(10, 10) == original); // не изменилось
 
-    // Тест сеттера матрицы
+    // setMatrix
     std::vector<std::vector<char>> newMat = {
-        {'0', '0', '0'},
-        {'1', '1', '1'},
-        {'0', '0', '0'},
+        {'1', '1'},
+        {'1', '1'}
     };
     elem1.setMatrix(newMat);
-    assert(elem1.getWidth() == 3);
-    assert(elem1.getHeight() == 3);
-    assert(elem1.getCell(0, 0) == '0');
-    assert(elem1.getCell(1, 1) == '1');
+    assert(elem1.getWidth() == 2);
+    assert(elem1.getHeight() == 2);
+    assert(elem1.getCell(0, 0) == '1');
 
-    // Тест геттера матрицы
-    const auto &matrixRef = elem2.getMatrix();
-    assert(matrixRef.size() == 3);
-    assert(matrixRef[0].size() == 3);
+    // getMatrix
+    const auto& refMat = elem2.getMatrix();
+    assert(refMat.size() == 3);
+    assert(refMat[0].size() == 3);
 
-    // Тест граничных значений
-    assert(elem2.getCell(-1, -1) == ' ');
-    assert(elem2.getCell(10, 10) == ' ');
+    // getType
+    assert(elem1.getType() == ElementType::ELEMENT);
 
+
+    // ТЕСТИРОВАНИЕ MOTOR
+    std::cout << "TESTING MOTOR..." << std::endl;
     Motor motor1;
     assert(motor1.getWidth() == 0);
     assert(motor1.getHeight() == 0);
@@ -438,66 +440,148 @@ void runTests()
     assert(motor1.getStatus() == false);
     assert(motor1.getType() == ElementType::MOTOR);
 
-    // Тест констр иниц Motor
+    // Конструктор инициализации
     std::vector<std::vector<char>> motorMat = {
         {'1', '0'},
-        {'0', '1'}};
-    Motor motor2(2, 2, motorMat, 50, 1);
+        {'0', '1'}
+    };
+    Motor motor2(2, 2, motorMat, 80, 1);
     assert(motor2.getWidth() == 2);
     assert(motor2.getHeight() == 2);
-    assert(motor2.getSpeed() == 50);
+    assert(motor2.getSpeed() == 80);
     assert(motor2.getDirection() == 1);
     assert(motor2.getStatus() == true);
     assert(motor2.getType() == ElementType::MOTOR);
 
-    // Тест констр копир Motor
+    // Конструктор копирования
     Motor motor3(motor2);
-    assert(motor3.getWidth() == 2);
-    assert(motor3.getHeight() == 2);
-    assert(motor3.getSpeed() == 50);
+    assert(motor3.getSpeed() == 80);
     assert(motor3.getDirection() == 1);
     assert(motor3.getStatus() == true);
 
-    // Тест сеттеров Motor
+    // Сеттеры
     motor1.setSpeed(75);
+    assert(motor1.getSpeed() == 75);
+    motor1.setSpeed(150);  // >100
+    assert(motor1.getSpeed() == 75);
+    motor1.setSpeed(-5);
     assert(motor1.getSpeed() == 75);
 
     motor1.setDirection(2);
     assert(motor1.getDirection() == 2);
-
-    motor1.setStatus(true);
-    assert(motor1.getStatus() == true);
-
-    // Тест некорректных знач
-    motor1.setSpeed(150);
-    assert(motor1.getSpeed() == 75);
-
-    motor1.setSpeed(-10);
-    assert(motor1.getSpeed() == 75);
-
-    motor1.setDirection(5);
+    motor1.setDirection(3);  // invalid
     assert(motor1.getDirection() == 2);
 
-    // Тест rotate()
-    Motor motor4;
-    motor4.rotate(80, 1);
-    assert(motor4.getSpeed() == 80);
-    assert(motor4.getDirection() == 1);
-    assert(motor4.getStatus() == true);
+    // rotate()
+    motor1.rotate(60, 2);
+    assert(motor1.getSpeed() == 60);
+    assert(motor1.getDirection() == 2);
+    assert(motor1.getStatus() == true);
 
-    // Тест stop()
-    motor4.stop();
-    assert(motor4.getSpeed() == 0);
-    assert(motor4.getDirection() == 0);
-    assert(motor4.getStatus() == false);
+    // stop()
+    motor1.stop();
+    assert(motor1.getSpeed() == 0);
+    assert(motor1.getDirection() == 0);
+    assert(motor1.getStatus() == false);
 
-    Element *elemPtr = &motor2;
+    // Проверка полиморфизма
+    Element* elemPtr = &motor2;
     assert(elemPtr->getType() == ElementType::MOTOR);
     assert(elemPtr->getWidth() == 2);
-    assert(elemPtr->getHeight() == 2);
+
+
+    // ТЕСТИРОВАНИЕ LAYER
+    std::cout << "TESTING LAYER..." << std::endl;
+
+    Layer layer1;
+    assert(layer1.isEmpty() == true);
+    assert(layer1.getWidth() == 0);
+    assert(layer1.getHeight() == 0);
+
+    // placeElement + hasOverlap
+    Element baseElem(3, 3, mat);
+    assert(layer1.placeElement(&baseElem, 0, 0) == true);
+    assert(layer1.placeElement(&baseElem, 1, 1) == false); // overlap
+    assert(layer1.getElements().size() == 1); // getElements()
+
+    // getCell
+    assert(layer1.getCell(0, 0) == '0');
+    assert(layer1.getCell(1, 0) == '1');
+
+    // canPlaceWithLowerLayer — проверка соединения
+    Layer lowerLayer;
+    Layer upperLayer;
+    lowerLayer.placeElement(&baseElem, 0, 0);
+
+    // Элемент с '1' на позиции, где в нижнем слое не '0' — не должен соединяться
+    assert(upperLayer.canPlaceWithLowerLayer(&baseElem, 0, 0, &lowerLayer) == false);
+
+    // Элемент с '1' там, где внизу '0' — должен соединяться
+    std::vector<std::vector<char>> connectMat = {
+        {'0', '0'},
+        {'0', '0'}
+    };
+    Element connector(2, 2, connectMat);
+    assert(upperLayer.canPlaceWithLowerLayer(&connector, 0, 0, &lowerLayer) == true);
+
+    // Удаление элемента
+    layer1.removeElement(0);
+    assert(layer1.isEmpty() == true);
+
+    // Границы
+    layer1.placeElement(&baseElem, 10, 10);
+    assert(layer1.getWidth() == 3);
+    assert(layer1.getHeight() == 3);
+    assert(layer1.getMinX() == 10);
+    assert(layer1.getMaxX() == 12);
+
+    // ТЕСТИРОВАНИЕ SCHEME
+    std::cout << "TESTING SCHEME..." << std::endl;
+    Scheme scheme;
+    assert(scheme.getLayerCount() == 0);
+
+    int layer0 = scheme.createLayer();
+    assert(layer0 == 0);
+    assert(scheme.getLayerCount() == 1);
+
+    Layer* l0 = scheme.getLayer(0);
+    assert(l0 != nullptr);
+    assert(scheme.getLayer(1) == nullptr);
+
+    // Добавление элемента
+    assert(scheme.addElement(&baseElem, 0, 0, 0) == true);
+    assert(scheme.addElement(&baseElem, 0, 0, 0) == false); // overlap
+
+    // Создаём второй слой
+    scheme.createLayer();
+
+    // Проверка валидации соединений между слоями
+    assert(scheme.validateStructure() == true); // пока нет верхнего элемента
+
+    // Попытка корректного соединения
+    Element topElem(1, 1, std::vector<std::vector<char>>(1, std::vector<char>(1, '1')));
+    assert(scheme.addElement(&topElem, 1, 0, 0) == true); // '1' на '0'
+
+    // Попытка некорректного соединения
+    Element baseTop(1, 1, std::vector<std::vector<char>>(1, std::vector<char>(1, '0')));
+    assert(scheme.addElement(&baseTop, 1, 0, 0) == false); // '0' на '0'
+
+    // Валидация — должна пройти
+    assert(scheme.validateStructure() == true);
+
+    // Удаление элемента и слоя
+    assert(scheme.removeElement(0, 0) == true);
+    assert(scheme.removeLayer(1) == true);
+    assert(scheme.getLayerCount() == 1);
+
+    // Глубокое копирование Scheme
+    Scheme schemeCopy(scheme);
+    assert(schemeCopy.getLayerCount() == 1);
+    assert(schemeCopy.getLayer(0)->isEmpty() == true);
+
 
     // ТЕСТИРОВАНИЕ КОНСОЛЬНОГО ИНТЕРФЕЙСА
-    std::cout << "Testing console interface..." << std::endl;
+    std::cout << "TESTING CONSOLE INTERFACE..." << std::endl;
 
     // Тест функции getInput с корректным вводом
     {
@@ -508,7 +592,7 @@ void runTests()
         assert(result == 42);
     }
 
-    // Тест функции inputMatrix
+    // inputMatrix
     {
         // это типо фейк ввод
         stringstream test_input("0 1 1 0");
@@ -523,157 +607,44 @@ void runTests()
         assert(matrix[1][1] == '0');
     }
 
-    // Тест создания элементов через вектор указателей
-    vector<Element *> elements;
-    elements.push_back(new Element(2, 2, mat));
-    elements.push_back(new Motor(3, 3, mat, 30, 2));
+    // Возвращаем обратно
+    std::cin.rdbuf(std::cin.rdbuf());
 
-    assert(elements.size() == 2);
+
+    // ТЕСТИРОВАНИЕ УПРАВЛЕНИЯ ЭЛЕМЕНТАМИ И СХЕМОЙ
+    std::cout << "TESTING ELEMENTS AND SCHEME CONTROL..." << std::endl;
+    std::vector<Element*> elements;
+    elements.push_back(new Element(2, 2, mat));
+    elements.push_back(new Motor(2, 2, motorMat, 50, 1));
+
     assert(elements[0]->getType() == ElementType::ELEMENT);
     assert(elements[1]->getType() == ElementType::MOTOR);
 
-    for (auto elem : elements)
-    {
-        delete elem;
+    Scheme testScheme;
+    testScheme.createLayer();
+    assert(testScheme.getLayerCount() == 1);
+
+    // Добавление элемента в схему
+    assert(testScheme.addElement(elements[0], 0, 0, 0) == true);
+    assert(testScheme.addElement(elements[1], 0, 2, 2) == true);
+
+    // Статистика
+    testScheme.getStats(); // не падает
+
+    // Валидация
+    assert(testScheme.validateStructure() == true);
+
+    // Удаление
+    assert(testScheme.removeElement(0, 0) == true);
+    assert(testScheme.removeLayer(0) == true);
+
+    // Очистка
+    for (auto e : elements) {
+        delete e;
     }
 
-    std::cout << "All tests have been passed!" << std::endl;
-
-    std::cout << "=== Testing Layer Class ===" << std::endl;
-
-    // Создаем тестовые элементы
-    vector<vector<char>> mat1 = {
-        {'1', '0', '1'},
-        {'0', '1', '0'}};
-    Element elem11(3, 2, mat1);
-
-    vector<vector<char>> mat2 = {
-        {'0', '1'},
-        {'1', '0'}};
-    Element elem22(2, 2, mat2);
-
-    vector<vector<char>> mat3 = {
-        {'1', '1'},
-        {'1', '1'}};
-    Element elem33(2, 2, mat3);
-
-    vector<vector<char>> mat4 = {
-        {'0', '0'},
-        {'0', '0'}};
-    Element elem44(2, 2, mat4);
-    // Создаем слои
-    Layer baseLayer;
-    Layer topLayer;
-
-    // Тестируем размещение на базовом слое
-    std::cout << "Placing element 1 on base layer..." << std::endl;
-    if (baseLayer.placeElement(&elem11, 0, 0))
-    {
-        std::cout << "Success!" << std::endl;
-    }
-    else
-    {
-        std::cout << "Failed!" << std::endl;
-    }
-
-    baseLayer.display();
-
-    // Тестируем размещение на верхнем слое с проверкой соединения
-    std::cout << "Placing element 2 on top layer..." << std::endl;
-    if (topLayer.canPlaceWithLowerLayer(&elem22, 0, 0, &baseLayer))
-    {
-        std::cout << "Can place!" << std::endl;
-        topLayer.placeElement(&elem22, 0, 0);
-        std::cout << "Placed successfully!" << std::endl;
-    }
-    else
-    {
-        std::cout << "Cannot place - connection issue!" << std::endl;
-    }
-
-    topLayer.display();
-
-    // Тестируем ручное размещение
-    cout << "Trying to manually place element at (1,1)..." << endl;
-    if (baseLayer.placeElement(&elem33, 1, 1))
-    {
-        cout << "Unexpected success!" << endl;
-    }
-    else
-    {
-        cout << "Correctly failed - overlap detected!" << endl;
-    }
-
-    cout << "Trying to manually place element at (10,10)..." << endl;
-    if (baseLayer.placeElement(&elem33, 10, 10))
-    {
-        cout << "Success! Layer expanded automatically." << endl;
-    }
-    baseLayer.display();
-
-    cout << "Trying to manually place element at (10,10)..." << endl;
-    if (topLayer.placeElement(&elem44, 2, 2))
-    {
-        cout << "Success! Layer expanded automatically." << endl;
-    }
-    topLayer.display();
-
-    cout << "=== Testing Scheme Class ===" << endl;
-    
-    // Создаем тестовые элементы
-    vector<vector<char>> baseMat = {
-        {'0', '0', '0'},
-        {'1', '1', '1'},
-        {'0', '0', '0'}
-    };
-    Element baseElem(3, 3, baseMat);
-    
-    vector<vector<char>> topMat = {
-        {'1', '1'},
-        {'0', '0'},
-        {'1', '1'}
-    };
-    Element topElem(2, 3, topMat);
-    
-    motorMat = {
-        {'0', '0'},
-        {'1', '1'}
-    };
-    Motor motorElem(2, 2, motorMat, 50, 1);
-    
-    // Создаем схему
-    Scheme scheme;
-    
-    // Создаем слои
-    scheme.createLayer(); // Слой 0
-    scheme.createLayer(); // Слой 1
-    scheme.createLayer(); // Слой 2
-    
-    cout << "Initial scheme:" << endl;
-    scheme.display();
-    
-    // Добавляем элементы
-    cout << "Adding base element to layer 0..." << endl;
-    if (scheme.addElement(&baseElem, 0, 0, 0)) {
-        cout << "Success!" << endl;
-    }
-    
-    cout << "Adding top element to layer 1..." << endl;
-    if (scheme.addElement(&topElem, 1, 1, 0)) {
-        cout << "Success!" << endl;
-    }
-    
-    cout << "Adding motor to layer 2..." << endl;
-    if (scheme.addElement(&motorElem, 2, 1, 0)) {
-        cout << "Success!" << endl;
-    }
-    
-    // Показываем результат
-    scheme.display();
-    scheme.getStats();
-
+    std::cout << "\nAll tests have been passed!" << std::endl;
 }
-
 void manageElements(vector<Element*> &elements) {
     while (true) {
         std::cout << "=== ELEMENT MANAGER ===" << std::endl;
