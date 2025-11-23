@@ -1,3 +1,22 @@
+# Инструкция по запуску
+
+**Для запуска программы:**
+
+```
+g++ main.cpp scheme.cpp element.cpp layer.cpp -lpsapi -o program.exe
+
+./program.exe
+```
+
+**Для запуска тестов:**
+```
+g++ -DRUN_TESTS main.cpp scheme.cpp layer.cpp element.cpp -lpsapi -o tests.exe
+
+./tests.exe
+```
+
+
+
 # Л/Р 1 - Разработка класса
 ## Требования к сдаваемым работам
 
